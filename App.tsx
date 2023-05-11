@@ -9,7 +9,7 @@ import Root from './src/app/Root';
 export const trpcClient = createTRPCProxyClient<AppRouter>({
   links: [
     httpBatchLink({
-      url: 'http://localhost:8080', //This would be whatever the BFF endpoint was (Local, dev, preprod & prod)
+      url: 'http://localhost:8080/trpc', //This would be whatever the BFF endpoint was (Local, dev, preprod & prod)
     }),
   ],
 });

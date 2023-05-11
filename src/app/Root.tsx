@@ -1,13 +1,16 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {useGetAllTodosQuery} from './services/todo.service';
+import {
+  useGetAllTodosQuery,
+  useGetSpecificTodoQuery,
+} from './services/todo.service';
 
 const styles = StyleSheet.create({
   container: {flex: 1, justifyContent: 'center', alignItems: 'center'},
 });
 
 const Root = () => {
-  const {data} = useGetAllTodosQuery();
+  const {data} = useGetSpecificTodoQuery({id: 1});
 
   return (
     <View style={styles.container}>

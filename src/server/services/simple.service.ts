@@ -2,7 +2,7 @@ import axios from 'axios';
 const baseTodo = 'https://jsonplaceholder.typicode.com/todos';
 import {z} from 'zod';
 import {Todo} from '..';
-import {trpcInstance} from '../router/appRouter';
+import {trpcInstance} from '../router/initTrpc';
 
 export const simpleService = {
   todoLogic: async (todo?: number) => {
@@ -17,19 +17,31 @@ export const simpleService = {
     }
   },
 };
+const todoOutput = z.object({
+  userId: z.number(),
+  id: z.number(),
+  title: z.string(),
+  completed: z.boolean(),
+});
 
 //Define 'endpoints' For above service
 // In bigger project this would probably look something like todos.service & todos.routes
 export const simpleServiceRoutes = {
   getSpecificTodo: trpcInstance.procedure
-    .input(z.number()) //ZOD defines the body type here is a simple number for input
-    .query(async (req): Promise<Todo[]> => {
-      const res = await simpleService.todoLogic(req.input);
+    .meta({openapi: {method: 'GET', path: '/specific-todos', tags: ['Todo']}})
+    .input(z.object({id: z.number()})) //ZOD defines the body type here is a simple number for input
+    .output(todoOutput)
+    .query(async (req): Promise<Todo> => {
+      const res = await simpleService.todoLogic(req.input.id);
       return res;
     }),
-  getAllTodos: trpcInstance.procedure.query(async (): Promise<Todo[]> => {
-    //This Query has no body hence 'input' is omitted
-    const res = await simpleService.todoLogic();
-    return res;
-  }),
+  getAllTodos: trpcInstance.procedure
+    .meta({openapi: {method: 'GET', path: '/all-todos', tags: ['Todo']}})
+    .input(z.undefined())
+    .output(z.array(todoOutput))
+    .query(async (): Promise<Todo[]> => {
+      //This Query has no body hence 'input' is omitted
+      const res = await simpleService.todoLogic();
+      return res;
+    }),
 };
